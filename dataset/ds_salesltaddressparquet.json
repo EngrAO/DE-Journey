@@ -1,0 +1,21 @@
+{
+	"name": "ds_salesltaddressparquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls02project001",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "salesltaddress.parquet",
+				"fileSystem": "landing"
+			},
+			"compressionCodec": "none"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

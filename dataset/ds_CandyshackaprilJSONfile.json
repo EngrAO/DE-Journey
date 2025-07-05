@@ -1,0 +1,24 @@
+{
+	"name": "ds_CandyshackaprilJSONfile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_azureblobadfcopy",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@concat('candyshacksales_',utcNow(), '.json')",
+					"type": "Expression"
+				},
+				"folderPath": "Candyshack",
+				"container": "jsonfile"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

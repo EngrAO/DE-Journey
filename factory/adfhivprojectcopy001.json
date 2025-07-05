@@ -1,0 +1,9 @@
+{
+	"name": "adfhivprojectcopy001",
+	"location": "centralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "8a85d0df-1eef-494b-9d54-1763464587d9",
+		"tenantId": "ed87dee9-fd31-415a-ba32-519e76489265"
+	}
+}

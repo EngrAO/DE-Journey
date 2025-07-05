@@ -1,0 +1,117 @@
+{
+	"name": "pl_copycsvtojsonusing functions",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyCandyshackcsvtojson",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Retailer",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Retailer']"
+								}
+							},
+							{
+								"source": {
+									"name": "SkuCode",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['SkuCode']"
+								}
+							},
+							{
+								"source": {
+									"name": "Product",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Product']"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesMonth",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['SalesMonth']"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesValue",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['SalesValue']"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitsSold",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['UnitsSold']"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_CandyshackaprilCSV",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_CandyshackaprilJSONfile",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-07-05T22:38:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

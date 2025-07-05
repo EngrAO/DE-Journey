@@ -1,0 +1,20 @@
+{
+	"name": "ds_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls02project001",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Azure-Data-Factory-by-Example-Second-Edition-main/SampleData/HandyCandy",
+				"fileSystem": "staging"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

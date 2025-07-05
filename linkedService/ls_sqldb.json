@@ -1,0 +1,17 @@
+{
+	"name": "ls_sqldb",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "sqlserverproject001.database.windows.net",
+			"database": "sqldb2project001",
+			"encrypt": "mandatory",
+			"trustServerCertificate": true,
+			"authenticationType": "SQL",
+			"userName": "ashabi25",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDQ3M0ZGMDcyLTg3MUItNENDOS04MjRCLUI0QTJDREY0MTM4Q19hZTEzNDUyMy00YTZiLTQ4YzktOGQwZS0xMzMyNDFhYzNkODkiDQp9"
+		}
+	}
+}
