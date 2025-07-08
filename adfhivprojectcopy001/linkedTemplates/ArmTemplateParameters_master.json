@@ -1,0 +1,84 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adfhivprojectcopy001"
+		},
+		"ls_adls02project001_accountKey": {
+			"value": ""
+		},
+		"ls_azureblobadfcopy_connectionString": {
+			"value": ""
+		},
+		"ls_azuredladfcopy_accountKey": {
+			"value": ""
+		},
+		"ls_dedisqlpool CSV dataset_password": {
+			"value": ""
+		},
+		"ls_sa4dls2030_accountKey": {
+			"value": ""
+		},
+		"ls_sqldb_password": {
+			"value": ""
+		},
+		"ls_sqldb1project001_password": {
+			"value": ""
+		},
+		"ls_sqlpoolstaging_password": {
+			"value": ""
+		},
+		"ls_adls02project001_properties_typeProperties_url": {
+			"value": "https://adls02project001.dfs.core.windows.net/"
+		},
+		"ls_azuredladfcopy_properties_typeProperties_url": {
+			"value": "https://saadlshivprojectcopy001.dfs.core.windows.net/"
+		},
+		"ls_dedisqlpool CSV dataset_properties_typeProperties_server": {
+			"value": "azuresynapsewrkspaceprj007.sql.azuresynapse.net"
+		},
+		"ls_dedisqlpool CSV dataset_properties_typeProperties_database": {
+			"value": "dedisqlpool CSV dataset"
+		},
+		"ls_dedisqlpool CSV dataset_properties_typeProperties_userName": {
+			"value": "sqladminuser"
+		},
+		"ls_sa4dls2030_properties_typeProperties_url": {
+			"value": "https://sa4dls2030.dfs.core.windows.net/"
+		},
+		"ls_sqldb_properties_typeProperties_server": {
+			"value": "sqlserverproject001.database.windows.net"
+		},
+		"ls_sqldb_properties_typeProperties_database": {
+			"value": "sqldb2project001"
+		},
+		"ls_sqldb_properties_typeProperties_userName": {
+			"value": "ashabi25"
+		},
+		"ls_sqldb1project001_properties_typeProperties_server": {
+			"value": "sqlserverproject001.database.windows.net"
+		},
+		"ls_sqldb1project001_properties_typeProperties_database": {
+			"value": "sqldb1project001"
+		},
+		"ls_sqldb1project001_properties_typeProperties_userName": {
+			"value": "ashabi25"
+		},
+		"ls_sqlpoolstaging_properties_typeProperties_server": {
+			"value": "sqlserverproject001.database.windows.net"
+		},
+		"ls_sqlpoolstaging_properties_typeProperties_database": {
+			"value": "dedicatedsqladfcopy"
+		},
+		"ls_sqlpoolstaging_properties_typeProperties_userName": {
+			"value": "ashabi25"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
