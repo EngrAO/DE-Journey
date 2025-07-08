@@ -67,7 +67,8 @@
 								"sink": {
 									"type": "DelimitedTextSink",
 									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "FlattenHierarchy"
 									},
 									"formatSettings": {
 										"type": "DelimitedTextWriteSettings",
@@ -103,7 +104,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"File_Name": {
-											"value": "@concat('salesLT',item().Table_Name,'.csv')",
+											"value": "@concat('salesLT_',item().Table_Name,'.csv')",
 											"type": "Expression"
 										}
 									}
