@@ -1,0 +1,23 @@
+{
+	"name": "ds_candyshack_sql_table_with_paramater",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqldb1project001",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tablename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"table": {
+				"value": "@dataset().tablename",
+				"type": "Expression"
+			}
+		}
+	}
+}
