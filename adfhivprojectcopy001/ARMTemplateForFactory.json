@@ -915,6 +915,137 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_copy_sqltables_to_adls')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup_for_sqltables",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select *\nfrom sqldb2project001.information_schema.tables\nwhere table_schema='salesLT' and Table_Type='Base Table'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ds_SalesLT_Schema",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach_sqltable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_for_sqltables",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_for_sqltables').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy_slaesLT Tables_to_adls",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings",
+												"copyBehavior": "FlattenHierarchy"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_salesLT_Schema_parameter",
+											"type": "DatasetReference",
+											"parameters": {
+												"TableName": {
+													"value": "@item().Table_Name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_SalesLT_csv_parameter",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@concat('salesLT_',item().Table_Name,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_SalesLT_Schema')]",
+				"[concat(variables('factoryId'), '/datasets/ds_salesLT_Schema_parameter')]",
+				"[concat(variables('factoryId'), '/datasets/ds_SalesLT_csv_parameter')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_copycsvtojsonusing functions')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1634,6 +1765,60 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_SalesLT_Schema')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_SalesLT_csv_parameter')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls02project001",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File_Name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File_Name",
+							"type": "Expression"
+						},
+						"fileSystem": "salesltfile"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls02project001')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_azuresqldb1')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1975,6 +2160,35 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_salesLT_Schema_parameter')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "SalesLT",
+					"table": {
+						"value": "@dataset().TableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_salesltaddresscsv')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2274,185 +2488,120 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_copy_sqltables_to_adls')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/dataflow_ExchangeRateJollyGood')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "Lookup_for_sqltables",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select *\nfrom sqldb2project001.information_schema.tables\nwhere table_schema='salesLT' and Table_Type='Base Table'",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "ds_SalesLT_Schema",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEach_sqltable",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup_for_sqltables",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup_for_sqltables').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Copy_slaesLT Tables_to_adls",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings",
-												"copyBehavior": "FlattenHierarchy"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_salesLT_Schema_parameter",
-											"type": "DatasetReference",
-											"parameters": {
-												"TableName": {
-													"value": "@item().Table_Name",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_SalesLT_csv_parameter",
-											"type": "DatasetReference",
-											"parameters": {
-												"File_Name": {
-													"value": "@concat('salesLT_',item().Table_Name,'.csv')",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_SalesLT_Schema')]",
-				"[concat(variables('factoryId'), '/datasets/ds_salesLT_Schema_parameter')]",
-				"[concat(variables('factoryId'), '/datasets/ds_SalesLT_csv_parameter')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_SalesLT_Schema')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_sqldb",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_salesLT_Schema_parameter')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_sqldb",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"TableName": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
+				"type": "MappingDataFlow",
 				"typeProperties": {
-					"schema": "SalesLT",
-					"table": {
-						"value": "@dataset().TableName",
-						"type": "Expression"
-					}
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Excel_jollygood",
+								"type": "DatasetReference"
+							},
+							"name": "Jollygoodexcel",
+							"description": "copy source dataset from jollygoodexcell file from Azure sa"
+						},
+						{
+							"linkedService": {
+								"referenceName": "ls_adls02project001",
+								"type": "LinkedServiceReference"
+							},
+							"name": "ExchangeRateJollyGood"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_sqldbtablexls",
+								"type": "DatasetReference"
+							},
+							"name": "sinktosqldbtable"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filterOutMonthTotal"
+						},
+						{
+							"name": "filtercurrencyRatetoUSD"
+						},
+						{
+							"name": "lookupforjollyGoodExcel"
+						},
+						{
+							"name": "derivedColumnforSalesValueUSD"
+						},
+						{
+							"name": "selectforDesiredColumns"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Period as date,",
+						"          Product as string,",
+						"          {Unit Price} as double,",
+						"          Currency as string,",
+						"          {Units Sold} as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Jollygoodexcel",
+						"source(output(",
+						"          FromCurrency as string,",
+						"          ToCurrency as string,",
+						"          Date as date,",
+						"          ExchangeRate as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'excel',",
+						"     fileSystem: 'staging',",
+						"     folderPath: 'Azure-Data-Factory-by-Example-Second-Edition-main/SampleData',",
+						"     fileName: 'ExchangeRates.xlsx',",
+						"     sheetName: 'Sheet1',",
+						"     firstRowAsHeader: true) ~> ExchangeRateJollyGood",
+						"Jollygoodexcel filter(Product!='Month Total') ~> filterOutMonthTotal",
+						"ExchangeRateJollyGood filter(ToCurrency== 'USD') ~> filtercurrencyRatetoUSD",
+						"filterOutMonthTotal, filtercurrencyRatetoUSD lookup(Period == Date",
+						"     && Currency == FromCurrency,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupforjollyGoodExcel",
+						"lookupforjollyGoodExcel derive(SalesValueUSD = round({Unit Price}*{Units Sold}*ExchangeRate,2)) ~> derivedColumnforSalesValueUSD",
+						"derivedColumnforSalesValueUSD select(mapColumn(",
+						"          Product,",
+						"          ExchangeRate,",
+						"          {Unit Price},",
+						"          {Units Sold},",
+						"          Date,",
+						"          SalesValueUSD",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectforDesiredColumns",
+						"selectforDesiredColumns sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sinktosqldbtable"
+					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb')]"
+				"[concat(variables('factoryId'), '/datasets/Excel_jollygood')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls02project001')]",
+				"[concat(variables('factoryId'), '/datasets/ds_sqldbtablexls')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ds_SalesLT_csv_parameter')]",
+			"name": "[concat(parameters('factoryName'), '/Excel_jollygood')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2460,31 +2609,64 @@
 					"referenceName": "ls_adls02project001",
 					"type": "LinkedServiceReference"
 				},
-				"parameters": {
-					"File_Name": {
-						"type": "string"
-					}
-				},
 				"annotations": [],
-				"type": "DelimitedText",
+				"type": "Excel",
 				"typeProperties": {
+					"sheetName": "SALES",
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().File_Name",
-							"type": "Expression"
-						},
-						"fileSystem": "salesltfile"
+						"fileName": "Sales Apr-Sep 2020.xlsx",
+						"folderPath": "Azure-Data-Factory-by-Example-Second-Edition-main/SampleData/JollyGood",
+						"fileSystem": "staging"
 					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
+					"firstRowAsHeader": true
 				},
-				"schema": []
+				"schema": [
+					{
+						"name": "Period",
+						"type": "String"
+					},
+					{
+						"name": "Product",
+						"type": "String"
+					},
+					{
+						"name": "Unit Price",
+						"type": "String"
+					},
+					{
+						"name": "Currency",
+						"type": "String"
+					},
+					{
+						"name": "Units Sold",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_adls02project001')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sqldbtablexls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb1project001",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "Engrao",
+					"table": "JollyGood"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb1project001')]"
 			]
 		}
 	]
