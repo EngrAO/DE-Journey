@@ -1,0 +1,16 @@
+{
+	"name": "ds_sqldbtablexls",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqldb1project001",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Engrao",
+			"table": "JollyGood"
+		}
+	}
+}
