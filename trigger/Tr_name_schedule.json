@@ -1,0 +1,17 @@
+{
+	"name": "Tr_name_schedule",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 15,
+				"startTime": "2025-07-13T15:02:00",
+				"timeZone": "Central Standard Time"
+			}
+		}
+	}
+}
