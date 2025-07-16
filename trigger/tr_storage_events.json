@@ -1,0 +1,25 @@
+{
+	"name": "tr_storage_events",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl-ingest_transform_sales_to_gold",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/landing/blobs/",
+			"blobPathEndsWith": ".csv",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}
