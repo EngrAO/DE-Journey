@@ -276,6 +276,54 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "pl_transform_sales_to_silver",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "copydesserts4allfilestoparquet",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_transform_sales_to_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "pl_transformsilvertogold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "pl_transform_sales_to_silver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_transformsilvertogold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
 					}
 				],
 				"policy": {
@@ -286,6 +334,8 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_dessert4allcsv')]",
 				"[concat(variables('factoryId'), '/datasets/ds_bronzeparquet')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_transform_sales_to_silver')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_transformsilvertogold')]",
 				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
 			]
 		},
