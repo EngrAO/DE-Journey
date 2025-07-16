@@ -1,0 +1,59 @@
+{
+	"name": "df_silver_to_gold",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silversales_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sourcesilverdessert4all"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_synapsedessert4all",
+						"type": "DatasetReference"
+					},
+					"name": "sinksalesGold"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggregatedessert4all"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          SalesMonth as string,",
+				"          Retailer as string,",
+				"          Product as string,",
+				"          SalesValueUSD as double,",
+				"          UnitsSold as integer,",
+				"          Revenue as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> sourcesilverdessert4all",
+				"sourcesilverdessert4all aggregate(groupBy(Product),",
+				"     TotalRevenue = sum(Revenue)) ~> aggregatedessert4all",
+				"aggregatedessert4all sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sinksalesGold"
+			]
+		}
+	}
+}

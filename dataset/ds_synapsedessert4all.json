@@ -1,0 +1,16 @@
+{
+	"name": "ds_synapsedessert4all",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dessert4allsynapse",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Sales_Gold"
+		}
+	}
+}
