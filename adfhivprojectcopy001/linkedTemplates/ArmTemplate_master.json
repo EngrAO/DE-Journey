@@ -39,6 +39,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_sqlpoolstaging'"
 		},
+		"ls_prj9_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_prj9'"
+		},
 		"ls_adls02project001_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adls02project001.dfs.core.windows.net/"
@@ -99,6 +103,14 @@
 			"type": "string",
 			"defaultValue": "ashabi25"
 		},
+		"ls_prj9_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://saretaildatapipeline.dfs.core.windows.net/"
+		},
+		"tr_storage_events_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -150,6 +162,9 @@
 					"ls_sqlpoolstaging_password": {
 						"value": "[parameters('ls_sqlpoolstaging_password')]"
 					},
+					"ls_prj9_accountKey": {
+						"value": "[parameters('ls_prj9_accountKey')]"
+					},
 					"ls_adls02project001_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls02project001_properties_typeProperties_url')]"
 					},
@@ -194,6 +209,9 @@
 					},
 					"ls_sqlpoolstaging_properties_typeProperties_userName": {
 						"value": "[parameters('ls_sqlpoolstaging_properties_typeProperties_userName')]"
+					},
+					"ls_prj9_properties_typeProperties_url": {
+						"value": "[parameters('ls_prj9_properties_typeProperties_url')]"
 					}
 				}
 			},
@@ -232,6 +250,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"tr_storage_events_properties_typeProperties_scope": {
+						"value": "[parameters('tr_storage_events_properties_typeProperties_scope')]"
 					}
 				}
 			},

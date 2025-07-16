@@ -29,6 +29,9 @@
 		"ls_sqlpoolstaging_password": {
 			"value": ""
 		},
+		"ls_prj9_accountKey": {
+			"value": ""
+		},
 		"ls_adls02project001_properties_typeProperties_url": {
 			"value": "https://adls02project001.dfs.core.windows.net/"
 		},
@@ -73,6 +76,12 @@
 		},
 		"ls_sqlpoolstaging_properties_typeProperties_userName": {
 			"value": "ashabi25"
+		},
+		"ls_prj9_properties_typeProperties_url": {
+			"value": "https://saretaildatapipeline.dfs.core.windows.net/"
+		},
+		"tr_storage_events_properties_typeProperties_scope": {
+			"value": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
 		}
 	}
 }
