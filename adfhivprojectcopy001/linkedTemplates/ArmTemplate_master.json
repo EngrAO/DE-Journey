@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_dedisqlpool CSV dataset'"
 		},
+		"ls_dessert4allsynapse_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_dessert4allsynapse'"
+		},
 		"ls_prj9_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_prj9'"
@@ -150,6 +154,9 @@
 					"ls_dedisqlpool CSV dataset_password": {
 						"value": "[parameters('ls_dedisqlpool CSV dataset_password')]"
 					},
+					"ls_dessert4allsynapse_connectionString": {
+						"value": "[parameters('ls_dessert4allsynapse_connectionString')]"
+					},
 					"ls_prj9_accountKey": {
 						"value": "[parameters('ls_prj9_accountKey')]"
 					},
@@ -250,6 +257,26 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adfhivprojectcopy001_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "adfhivprojectcopy001_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
 					},
 					"tr_storage_events_properties_typeProperties_scope": {
 						"value": "[parameters('tr_storage_events_properties_typeProperties_scope')]"
@@ -257,7 +284,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'adfhivprojectcopy001_ArmTemplate_1')]"
+				"[resourceId('Microsoft.Resources/deployments', 'adfhivprojectcopy001_ArmTemplate_2')]"
 			]
 		}
 	]
