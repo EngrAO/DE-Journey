@@ -1,0 +1,55 @@
+{
+	"name": "dataflow_bronze_to_silver",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronzeparquet",
+						"type": "DatasetReference"
+					},
+					"name": "dessert4allbronze"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silversales_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinksilverparquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DCRevenue"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          SalesMonth as string,",
+				"          Retailer as string,",
+				"          Product as string,",
+				"          SalesValueUSD as double,",
+				"          UnitsSold as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> dessert4allbronze",
+				"dessert4allbronze derive(Revenue = SalesValueUSD*UnitsSold) ~> DCRevenue",
+				"DCRevenue sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['cleaned_dessert4all.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sinksilverparquet"
+			]
+		}
+	}
+}
