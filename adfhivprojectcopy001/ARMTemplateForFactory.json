@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_dedisqlpool CSV dataset'"
 		},
+		"ls_prj9_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_prj9'"
+		},
 		"ls_sa4dls2030_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_sa4dls2030'"
@@ -38,10 +42,6 @@
 		"ls_sqlpoolstaging_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_sqlpoolstaging'"
-		},
-		"ls_prj9_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'ls_prj9'"
 		},
 		"ls_adls02project001_properties_typeProperties_url": {
 			"type": "string",
@@ -62,6 +62,10 @@
 		"ls_dedisqlpool CSV dataset_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "sqladminuser"
+		},
+		"ls_prj9_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://saretaildatapipeline.dfs.core.windows.net/"
 		},
 		"ls_sa4dls2030_properties_typeProperties_url": {
 			"type": "string",
@@ -102,10 +106,6 @@
 		"ls_sqlpoolstaging_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "ashabi25"
-		},
-		"ls_prj9_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://saretaildatapipeline.dfs.core.windows.net/"
 		},
 		"tr_storage_events_properties_typeProperties_scope": {
 			"type": "string",
@@ -191,6 +191,98 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SourceDataset_6z1')]",
 				"[concat(variables('factoryId'), '/datasets/DestinationDataset_6z1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl-ingest_transform_sales_to_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copydesserts4allfilestoparquet",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*.csv",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "MergeFiles"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"logSettings": {
+								"enableCopyActivityLog": true,
+								"copyActivityLogSettings": {
+									"logLevel": "Warning",
+									"enableReliableLogging": false
+								},
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "ls_prj9",
+										"type": "LinkedServiceReference"
+									},
+									"path": "landing"
+								}
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_dessert4allcsv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_bronzeparquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_dessert4allcsv')]",
+				"[concat(variables('factoryId'), '/datasets/ds_bronzeparquet')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
 			]
 		},
 		{
@@ -1977,6 +2069,31 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_bronzeparquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_prj9",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "dessert4all.parquet",
+						"fileSystem": "bronze"
+					},
+					"compressionCodec": "none"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_candyshack_file_with_parameter')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2239,6 +2356,33 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_dedisqlpool CSV dataset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dessert4allcsv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_prj9",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
 			]
 		},
 		{
@@ -2533,6 +2677,23 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ls_prj9')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_prj9_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_prj9_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ls_sa4dls2030')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -2614,6 +2775,37 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/tr_storage_events')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl-ingest_transform_sales_to_gold",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/landing/blobs/",
+					"blobPathEndsWith": ".csv",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('tr_storage_events_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl-ingest_transform_sales_to_gold')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/dataflow_ExchangeRateJollyGood')]",
@@ -2729,14 +2921,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl-ingest_transform_sales_to_gold')]",
+			"name": "[concat(parameters('factoryName'), '/pl_transform_sales_to_silver')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "copydesserts4allfilestoparquet",
-						"type": "Copy",
+						"name": "df_sales_silver",
+						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -2747,66 +2939,22 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"wildcardFileName": "*.csv",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
+							"dataflow": {
+								"referenceName": "dataflow_bronze_to_silver",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"dessert4allbronze": {},
+									"sinksilverparquet": {}
 								}
 							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings",
-									"copyBehavior": "MergeFiles"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
 							},
-							"enableStaging": false,
-							"logSettings": {
-								"enableCopyActivityLog": true,
-								"copyActivityLogSettings": {
-									"logLevel": "Warning",
-									"enableReliableLogging": false
-								},
-								"logLocationSettings": {
-									"linkedServiceName": {
-										"referenceName": "ls_prj9",
-										"type": "LinkedServiceReference"
-									},
-									"path": "landing"
-								}
-							},
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_dessert4allcsv",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_bronzeparquet",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
@@ -2815,57 +2963,72 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_dessert4allcsv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_bronzeparquet')]",
-				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflow_bronze_to_silver')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ls_prj9')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"name": "[concat(parameters('factoryName'), '/dataflow_bronze_to_silver')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
+				"type": "MappingDataFlow",
 				"typeProperties": {
-					"url": "[parameters('ls_prj9_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ls_prj9_accountKey')]"
-					}
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronzeparquet",
+								"type": "DatasetReference"
+							},
+							"name": "dessert4allbronze"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silversales_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinksilverparquet"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DCRevenue"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          SalesMonth as string,",
+						"          Retailer as string,",
+						"          Product as string,",
+						"          SalesValueUSD as double,",
+						"          UnitsSold as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> dessert4allbronze",
+						"dessert4allbronze derive(Revenue = SalesValueUSD*UnitsSold) ~> DCRevenue",
+						"DCRevenue sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     partitionFileNames:['cleaned_dessert4all.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sinksilverparquet"
+					]
 				}
 			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_dessert4allcsv')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_prj9",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileSystem": "landing"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
+				"[concat(variables('factoryId'), '/datasets/ds_bronzeparquet')]",
+				"[concat(variables('factoryId'), '/datasets/ds_silversales_parquet')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ds_bronzeparquet')]",
+			"name": "[concat(parameters('factoryName'), '/ds_silversales_parquet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2878,46 +3041,16 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "dessert4all.parquet",
-						"fileSystem": "bronze"
+						"fileName": "cleaned_dessert4all.parquet",
+						"folderPath": "sales",
+						"fileSystem": "silver"
 					},
-					"compressionCodec": "none"
+					"compressionCodec": "snappy"
 				},
 				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/tr_storage_events')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pl-ingest_transform_sales_to_gold",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/landing/blobs/",
-					"blobPathEndsWith": ".csv",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('tr_storage_events_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl-ingest_transform_sales_to_gold')]"
 			]
 		}
 	]

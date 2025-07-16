@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_dedisqlpool CSV dataset'"
 		},
+		"ls_prj9_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_prj9'"
+		},
 		"ls_sa4dls2030_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_sa4dls2030'"
@@ -38,10 +42,6 @@
 		"ls_sqlpoolstaging_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_sqlpoolstaging'"
-		},
-		"ls_prj9_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'ls_prj9'"
 		},
 		"ls_adls02project001_properties_typeProperties_url": {
 			"type": "string",
@@ -62,6 +62,10 @@
 		"ls_dedisqlpool CSV dataset_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "sqladminuser"
+		},
+		"ls_prj9_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://saretaildatapipeline.dfs.core.windows.net/"
 		},
 		"ls_sa4dls2030_properties_typeProperties_url": {
 			"type": "string",
@@ -102,10 +106,6 @@
 		"ls_sqlpoolstaging_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "ashabi25"
-		},
-		"ls_prj9_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://saretaildatapipeline.dfs.core.windows.net/"
 		}
 	},
 	"variables": {
@@ -178,6 +178,23 @@
 					"password": {
 						"type": "SecureString",
 						"value": "[parameters('ls_dedisqlpool CSV dataset_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_prj9')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_prj9_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_prj9_accountKey')]"
 					}
 				}
 			},
@@ -261,23 +278,6 @@
 					"password": {
 						"type": "SecureString",
 						"value": "[parameters('ls_sqlpoolstaging_password')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_prj9')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ls_prj9_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ls_prj9_accountKey')]"
 					}
 				}
 			},
