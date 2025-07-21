@@ -213,7 +213,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"FileName": {
-								"value": "@activity('Get Metadata_LModfile_ItemName').output.itemName",
+								"value": "@variables('NewestFile')",
 								"type": "Expression"
 							}
 						}
