@@ -17,107 +17,122 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pl-copyactivities')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/dataflow_bronze_to_silver')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "Get Metadata - Dessert4all",
-						"description": "Dessert4all_childitems",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
 							"dataset": {
-								"referenceName": "ds_dessert4allGMcsv",
-								"type": "DatasetReference",
-								"parameters": {}
+								"referenceName": "ds_bronzeparquet",
+								"type": "DatasetReference"
 							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
+							"name": "dessert4allbronze"
 						}
-					},
-					{
-						"name": "ForEach_InputfromGMOutput",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Get Metadata - Dessert4all",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Metadata - Dessert4all').output.childItems",
-								"type": "Expression"
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silversales_parquet",
+								"type": "DatasetReference"
 							},
-							"activities": [
-								{
-									"name": "Get Metadata_LModfile_ItemName",
-									"description": "This is to get the last modified file and the file name",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [
-										{}
-									],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "ds_GM2lmodfile_ItemName",
-											"type": "DatasetReference",
-											"parameters": {
-												"FileName": {
-													"value": "@item().Name",
-													"type": "Expression"
-												}
-											}
-										},
-										"fieldList": [
-											"lastModified",
-											"itemName"
-										],
-										"storeSettings": {
-											"type": "AzureBlobFSReadSettings",
-											"enablePartitionDiscovery": false
-										},
-										"formatSettings": {
-											"type": "DelimitedTextReadSettings"
-										}
-									}
-								}
-							]
+							"name": "sinksilverparquet"
 						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
+					],
+					"transformations": [
+						{
+							"name": "DCRevenue"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          SalesMonth as string,",
+						"          Retailer as string,",
+						"          Product as string,",
+						"          SalesValueUSD as double,",
+						"          UnitsSold as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> dessert4allbronze",
+						"dessert4allbronze derive(Revenue = SalesValueUSD*UnitsSold) ~> DCRevenue",
+						"DCRevenue sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     partitionFileNames:['cleaned_dessert4all.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sinksilverparquet"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_to_gold')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silversales_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sourcesilverdessert4all"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_synapsedessert4all",
+								"type": "DatasetReference"
+							},
+							"name": "sinksalesGold"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregatedessert4all"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          SalesMonth as string,",
+						"          Retailer as string,",
+						"          Product as string,",
+						"          SalesValueUSD as double,",
+						"          UnitsSold as integer,",
+						"          Revenue as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> sourcesilverdessert4all",
+						"sourcesilverdessert4all aggregate(groupBy(Product),",
+						"     TotalRevenue = sum(Revenue)) ~> aggregatedessert4all",
+						"aggregatedessert4all sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     staged: true,",
+						"     allowCopyCommand: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sinksalesGold"
+					]
+				}
 			},
 			"dependsOn": []
 		},
@@ -208,7 +223,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_bronze_to_silver')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_transformsilvertogold')]",
@@ -258,7 +275,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_silver_to_gold')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl-ingest_transform_sales_to_gold')]",
