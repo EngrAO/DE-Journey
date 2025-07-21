@@ -46,7 +46,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Get Metadata - Dessert4all_childitems').output",
+						"value": "@activity('Get Metadata - Dessert4all').output.childItems",
 						"type": "Expression"
 					},
 					"activities": [
@@ -62,11 +62,16 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": [],
 							"typeProperties": {
 								"dataset": {
 									"referenceName": "ds_GM2lmodfile_ItemName",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"FileName": {
+											"value": "@item().Name",
+											"type": "Expression"
+										}
+									}
 								},
 								"fieldList": [
 									"lastModified",
