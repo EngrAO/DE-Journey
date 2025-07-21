@@ -1,0 +1,22 @@
+{
+	"name": "ds_desert4all_copy_newestfile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_prj9",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "gold"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
