@@ -1,0 +1,17 @@
+{
+	"name": "DestinationDataset_7ah",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_prj9",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "silver"
+			}
+		}
+	}
+}
