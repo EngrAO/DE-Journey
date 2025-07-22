@@ -114,14 +114,6 @@
 		"tr_storage_events_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
-		},
-		"trigger1_properties_pipeline_parameters_windowStart": {
-			"type": "string",
-			"defaultValue": "2025-07-22 17:41"
-		},
-		"trigger1_properties_pipeline_parameters_windowEnd": {
-			"type": "string",
-			"defaultValue": "2025-07-23 17:41"
 		}
 	},
 	"variables": {
@@ -206,13 +198,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/CopyPipeline_krl')]",
+			"name": "[concat(parameters('factoryName'), '/CopyPipeline_one')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy_krl",
+						"name": "Copy_one",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -229,7 +221,7 @@
 							},
 							{
 								"name": "Destination",
-								"value": "silver/@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}/"
+								"value": "silver//"
 							}
 						],
 						"typeProperties": {
@@ -238,8 +230,7 @@
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
 									"recursive": true,
-									"wildcardFileName": "*",
-									"deleteFilesAfterCompletion": false
+									"wildcardFileName": "*"
 								},
 								"formatSettings": {
 									"type": "BinaryReadSettings"
@@ -260,18 +251,16 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "SourceDataset_krl",
+								"referenceName": "SourceDataset_one",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "DestinationDataset_krl",
+								"referenceName": "DestinationDataset_one",
 								"type": "DatasetReference",
-								"parameters": {
-									"cw_folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}"
-								}
+								"parameters": {}
 							}
 						]
 					}
@@ -279,19 +268,11 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"parameters": {
-					"windowStart": {
-						"type": "String"
-					},
-					"windowEnd": {
-						"type": "String"
-					}
-				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SourceDataset_krl')]",
-				"[concat(variables('factoryId'), '/datasets/DestinationDataset_krl')]"
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_one')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_one')]"
 			]
 		},
 		{
@@ -2172,6 +2153,28 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_one')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_prj9",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "silver"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_prj9')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Excel_jollygood')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2248,6 +2251,29 @@
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/SourceDataset_krl')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls02project001",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Azure-Data-Factory-by-Example-Second-Edition-main/SampleData/Desserts4All",
+						"fileSystem": "staging"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls02project001')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_one')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -3527,6 +3553,38 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Trigger_one')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "CopyPipeline_one",
+						"type": "PipelineReference"
+					},
+					"parameters": {}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2025-07-19T21:57:00Z",
+					"endTime": "2025-07-23T21:57:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/CopyPipeline_one')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/tr_storage_events')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -3555,40 +3613,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl-ingest_transform_sales_to_gold')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger1')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "CopyPipeline_krl",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"windowStart": "[parameters('trigger1_properties_pipeline_parameters_windowStart')]",
-						"windowEnd": "[parameters('trigger1_properties_pipeline_parameters_windowEnd')]"
-					}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 2,
-					"startTime": "2025-07-21T19:35:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 3,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/CopyPipeline_krl')]"
 			]
 		},
 		{
