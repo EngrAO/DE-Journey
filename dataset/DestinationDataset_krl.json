@@ -1,0 +1,26 @@
+{
+	"name": "DestinationDataset_krl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_prj9",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"cw_folderPath": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().cw_folderPath",
+					"type": "Expression"
+				},
+				"fileSystem": "silver"
+			}
+		}
+	}
+}
