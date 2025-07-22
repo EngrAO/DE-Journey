@@ -9,7 +9,8 @@
 				"type": "PipelineReference"
 			},
 			"parameters": {
-				"windowStart": "2025-07-22 17:41"
+				"windowStart": "2025-07-22 17:41",
+				"windowEnd": "2025-07-23 17:41"
 			}
 		},
 		"type": "TumblingWindowTrigger",
