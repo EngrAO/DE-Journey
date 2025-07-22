@@ -83,6 +83,12 @@
 		"ls_sqlpoolstaging_properties_typeProperties_userName": {
 			"value": "ashabi25"
 		},
+		"Trigger_7ah_properties_pipeline_parameters_windowStart": {
+			"value": "@trigger().outputs.windowStartTime"
+		},
+		"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
+			"value": "@trigger().outputs.windowEndTime"
+		},
 		"tr_storage_events_properties_typeProperties_scope": {
 			"value": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
 		},

@@ -111,6 +111,14 @@
 			"type": "string",
 			"defaultValue": "ashabi25"
 		},
+		"Trigger_7ah_properties_pipeline_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowStartTime"
+		},
+		"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowEndTime"
+		},
 		"tr_storage_events_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
@@ -277,6 +285,12 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Trigger_7ah_properties_pipeline_parameters_windowStart": {
+						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowStart')]"
+					},
+					"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
+						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowEnd')]"
 					},
 					"tr_storage_events_properties_typeProperties_scope": {
 						"value": "[parameters('tr_storage_events_properties_typeProperties_scope')]"
