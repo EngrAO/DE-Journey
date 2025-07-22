@@ -86,6 +86,12 @@
 		"tr_storage_events_properties_typeProperties_scope": {
 			"value": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
 		},
+		"trigger1_properties_pipeline_parameters_windowStart": {
+			"value": "2025-07-22 17:41"
+		},
+		"trigger1_properties_pipeline_parameters_windowEnd": {
+			"value": "2025-07-23 17:41"
+		},
 		"containerUri": {
 			"value": ""
 		},

@@ -115,6 +115,14 @@
 			"type": "string",
 			"defaultValue": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
 		},
+		"trigger1_properties_pipeline_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "2025-07-22 17:41"
+		},
+		"trigger1_properties_pipeline_parameters_windowEnd": {
+			"type": "string",
+			"defaultValue": "2025-07-23 17:41"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -277,6 +285,12 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"trigger1_properties_pipeline_parameters_windowStart": {
+						"value": "[parameters('trigger1_properties_pipeline_parameters_windowStart')]"
+					},
+					"trigger1_properties_pipeline_parameters_windowEnd": {
+						"value": "[parameters('trigger1_properties_pipeline_parameters_windowEnd')]"
 					},
 					"tr_storage_events_properties_typeProperties_scope": {
 						"value": "[parameters('tr_storage_events_properties_typeProperties_scope')]"

@@ -7,6 +7,14 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adfhivprojectcopy001"
 		},
+		"trigger1_properties_pipeline_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "2025-07-22 17:41"
+		},
+		"trigger1_properties_pipeline_parameters_windowEnd": {
+			"type": "string",
+			"defaultValue": "2025-07-23 17:41"
+		},
 		"tr_storage_events_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/54586eec-7752-48ed-b341-b9c024a9d267/resourceGroups/rg-retaildatapipeline/providers/Microsoft.Storage/storageAccounts/saretaildatapipeline"
@@ -538,6 +546,38 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/df_silver_to_gold')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger1')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "CopyPipeline_krl",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"windowStart": "[parameters('trigger1_properties_pipeline_parameters_windowStart')]",
+						"windowEnd": "[parameters('trigger1_properties_pipeline_parameters_windowEnd')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 2,
+					"startTime": "2025-07-21T19:35:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 3,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl-ingest_transform_sales_to_gold')]",
