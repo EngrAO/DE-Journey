@@ -1,0 +1,19 @@
+{
+	"name": "MetadataDrivenCopyTask_hdl_ControlDS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_controltable",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "MetadataDrivenCopyTask_hdl_20250723"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "engrao",
+			"table": "MainControlTable_hdl"
+		}
+	}
+}
