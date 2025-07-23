@@ -2,7 +2,7 @@
 	"name": "Trigger_hdl",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipeline": {
 			"pipelineReference": {
 				"referenceName": "MetadataDrivenCopyTask_hdl_TopLevel",
