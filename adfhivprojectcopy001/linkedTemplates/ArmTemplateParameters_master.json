@@ -14,6 +14,9 @@
 		"ls_azuredladfcopy_accountKey": {
 			"value": ""
 		},
+		"ls_controltable_password": {
+			"value": ""
+		},
 		"ls_dedisqlpool CSV dataset_password": {
 			"value": ""
 		},
@@ -40,6 +43,15 @@
 		},
 		"ls_azuredladfcopy_properties_typeProperties_url": {
 			"value": "https://saadlshivprojectcopy001.dfs.core.windows.net/"
+		},
+		"ls_controltable_properties_typeProperties_server": {
+			"value": "sqlserverproject001.database.windows.net"
+		},
+		"ls_controltable_properties_typeProperties_database": {
+			"value": "sqldb2project001"
+		},
+		"ls_controltable_properties_typeProperties_userName": {
+			"value": "Ashabi25"
 		},
 		"ls_dedisqlpool CSV dataset_properties_typeProperties_server": {
 			"value": "azuresynapsewrkspaceprj007.sql.azuresynapse.net"

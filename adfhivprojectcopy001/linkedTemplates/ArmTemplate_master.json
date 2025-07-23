@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_azuredladfcopy'"
 		},
+		"ls_controltable_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_controltable'"
+		},
 		"ls_dedisqlpool CSV dataset_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_dedisqlpool CSV dataset'"
@@ -54,6 +58,18 @@
 		"ls_azuredladfcopy_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://saadlshivprojectcopy001.dfs.core.windows.net/"
+		},
+		"ls_controltable_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sqlserverproject001.database.windows.net"
+		},
+		"ls_controltable_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqldb2project001"
+		},
+		"ls_controltable_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "Ashabi25"
 		},
 		"ls_dedisqlpool CSV dataset_properties_typeProperties_server": {
 			"type": "string",
@@ -159,6 +175,9 @@
 					"ls_azuredladfcopy_accountKey": {
 						"value": "[parameters('ls_azuredladfcopy_accountKey')]"
 					},
+					"ls_controltable_password": {
+						"value": "[parameters('ls_controltable_password')]"
+					},
 					"ls_dedisqlpool CSV dataset_password": {
 						"value": "[parameters('ls_dedisqlpool CSV dataset_password')]"
 					},
@@ -185,6 +204,15 @@
 					},
 					"ls_azuredladfcopy_properties_typeProperties_url": {
 						"value": "[parameters('ls_azuredladfcopy_properties_typeProperties_url')]"
+					},
+					"ls_controltable_properties_typeProperties_server": {
+						"value": "[parameters('ls_controltable_properties_typeProperties_server')]"
+					},
+					"ls_controltable_properties_typeProperties_database": {
+						"value": "[parameters('ls_controltable_properties_typeProperties_database')]"
+					},
+					"ls_controltable_properties_typeProperties_userName": {
+						"value": "[parameters('ls_controltable_properties_typeProperties_userName')]"
 					},
 					"ls_dedisqlpool CSV dataset_properties_typeProperties_server": {
 						"value": "[parameters('ls_dedisqlpool CSV dataset_properties_typeProperties_server')]"
@@ -291,6 +319,26 @@
 					},
 					"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
 						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowEnd')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adfhivprojectcopy001_ArmTemplate_2')]"
+			]
+		},
+		{
+			"name": "adfhivprojectcopy001_ArmTemplate_4",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
 					},
 					"tr_storage_events_properties_typeProperties_scope": {
 						"value": "[parameters('tr_storage_events_properties_typeProperties_scope')]"
@@ -298,7 +346,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'adfhivprojectcopy001_ArmTemplate_2')]"
+				"[resourceId('Microsoft.Resources/deployments', 'adfhivprojectcopy001_ArmTemplate_3')]"
 			]
 		}
 	]
