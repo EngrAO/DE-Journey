@@ -38,6 +38,9 @@
 		"ls_sqlpoolstaging_password": {
 			"value": ""
 		},
+		"ls_HttpServer1_properties_typeProperties_url": {
+			"value": "https://reqres.in/api/users"
+		},
 		"ls_adls02project001_properties_typeProperties_url": {
 			"value": "https://adls02project001.dfs.core.windows.net/"
 		},

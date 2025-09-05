@@ -51,6 +51,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_sqlpoolstaging'"
 		},
+		"ls_HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://reqres.in/api/users"
+		},
 		"ls_adls02project001_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adls02project001.dfs.core.windows.net/"
@@ -199,6 +203,9 @@
 					"ls_sqlpoolstaging_password": {
 						"value": "[parameters('ls_sqlpoolstaging_password')]"
 					},
+					"ls_HttpServer1_properties_typeProperties_url": {
+						"value": "[parameters('ls_HttpServer1_properties_typeProperties_url')]"
+					},
 					"ls_adls02project001_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls02project001_properties_typeProperties_url')]"
 					},
@@ -313,12 +320,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"Trigger_7ah_properties_pipeline_parameters_windowStart": {
-						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowStart')]"
-					},
-					"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
-						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowEnd')]"
 					}
 				}
 			},
@@ -339,6 +340,12 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Trigger_7ah_properties_pipeline_parameters_windowStart": {
+						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowStart')]"
+					},
+					"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
+						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowEnd')]"
 					},
 					"tr_storage_events_properties_typeProperties_scope": {
 						"value": "[parameters('tr_storage_events_properties_typeProperties_scope')]"
