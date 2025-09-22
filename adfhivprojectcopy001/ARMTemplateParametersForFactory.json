@@ -65,6 +65,9 @@
 		"ls_dedisqlpool CSV dataset_properties_typeProperties_userName": {
 			"value": "sqladminuser"
 		},
+		"ls_github_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com"
+		},
 		"ls_prj9_properties_typeProperties_url": {
 			"value": "https://saretaildatapipeline.dfs.core.windows.net/"
 		},
