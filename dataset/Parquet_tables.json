@@ -1,0 +1,29 @@
+{
+	"name": "Parquet_tables",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls02project001",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"filename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat(dataset().filename,'.parquet')",
+					"type": "Expression"
+				},
+				"folderPath": "StoreAnalytics/Bronze",
+				"fileSystem": "ecomm"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

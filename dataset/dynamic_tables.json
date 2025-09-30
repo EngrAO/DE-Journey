@@ -1,0 +1,31 @@
+{
+	"name": "dynamic_tables",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqldb1project001",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tablename": {
+				"type": "string"
+			},
+			"schemaname": {
+				"type": "string",
+				"defaultValue": "dbo"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schemaname",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().tablename",
+				"type": "Expression"
+			}
+		}
+	}
+}

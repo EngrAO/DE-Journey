@@ -1,0 +1,21 @@
+{
+	"name": "Parquet_customer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls02project001",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "customer.parquet",
+				"folderPath": "StoreAnalytics/Bronze",
+				"fileSystem": "ecomm"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
