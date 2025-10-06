@@ -1,0 +1,67 @@
+{
+	"name": "df_scdtype1_studentinfo",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dsstudentinfo",
+						"type": "DatasetReference"
+					},
+					"name": "sourcestudentinfo"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference"
+					},
+					"name": "sinksqldb"
+				}
+			],
+			"transformations": [
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          StuID as integer,",
+				"          StuName as string,",
+				"          Location as string,",
+				"          Age as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false) ~> sourcestudentinfo",
+				"sourcestudentinfo alterRow(upsertIf(1==1)) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          StuID as integer,",
+				"          StuName as string,",
+				"          Location as string,",
+				"          Age as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['StuID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          StuID,",
+				"          StuName,",
+				"          Location,",
+				"          Age",
+				"     )) ~> sinksqldb"
+			]
+		}
+	}
+}
