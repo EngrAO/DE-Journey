@@ -1,0 +1,140 @@
+{
+	"name": "df_employeerecords",
+	"properties": {
+		"description": "SCD Tyoe2",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dsemployeeinfo",
+						"type": "DatasetReference"
+					},
+					"name": "sourceadlscsv"
+				},
+				{
+					"dataset": {
+						"referenceName": "dssqldb",
+						"type": "DatasetReference"
+					},
+					"name": "sqldb"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dssqldb",
+						"type": "DatasetReference"
+					},
+					"name": "sinktosqldb"
+				},
+				{
+					"dataset": {
+						"referenceName": "dssqldb",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "lookupemployeerecords"
+				},
+				{
+					"name": "derivedIsCurrentColumn"
+				},
+				{
+					"name": "filterempisisnotnull"
+				},
+				{
+					"name": "derivedIsCurrentColumn1"
+				},
+				{
+					"name": "alterRowempid"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmpId as integer,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          Dept as string,",
+				"          Location as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourceadlscsv",
+				"source(output(",
+				"          EmpKey as integer,",
+				"          EmpId as integer,",
+				"          FirstName as string,",
+				"          LastName as string,",
+				"          Dept as string,",
+				"          Location as string,",
+				"          IsCurrent as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sqldb",
+				"sqldb select(mapColumn(",
+				"          db_EmpKey = EmpKey,",
+				"          db_EmpId = EmpId,",
+				"          db_FirstName = FirstName,",
+				"          db_LastName = LastName,",
+				"          db_Dept = Dept,",
+				"          db_Location = Location,",
+				"          db_IsCurrent = IsCurrent",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"sourceadlscsv, select1 lookup(EmpId == db_EmpId,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupemployeerecords",
+				"sourceadlscsv derive(IsCurrent = 1) ~> derivedIsCurrentColumn",
+				"lookupemployeerecords filter(!isNull(db_EmpId)) ~> filterempisisnotnull",
+				"filterempisisnotnull derive(IsCurrent = 0) ~> derivedIsCurrentColumn1",
+				"derivedIsCurrentColumn1 alterRow(updateIf(IsCurrent==0)) ~> alterRowempid",
+				"derivedIsCurrentColumn sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          EmpId,",
+				"          FirstName,",
+				"          LastName,",
+				"          Dept,",
+				"          Location,",
+				"          IsCurrent",
+				"     )) ~> sinktosqldb",
+				"alterRowempid sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['db_EmpKey'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          db_EmpKey,",
+				"          IsCurrent",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

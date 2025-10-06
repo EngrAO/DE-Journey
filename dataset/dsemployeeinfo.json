@@ -1,0 +1,44 @@
+{
+	"name": "dsemployeeinfo",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls02project001",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Employeeinfo.csv",
+				"fileSystem": "landing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "EmpId",
+				"type": "String"
+			},
+			{
+				"name": "FirstName",
+				"type": "String"
+			},
+			{
+				"name": "LastName",
+				"type": "String"
+			},
+			{
+				"name": "Dept",
+				"type": "String"
+			},
+			{
+				"name": "Location",
+				"type": "String"
+			}
+		]
+	}
+}
