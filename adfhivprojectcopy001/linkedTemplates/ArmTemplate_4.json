@@ -21,6 +21,265 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_copy_from_adls_to_sql')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata from Candyshack",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_Candyshackcsvfile",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEachcandyshackfile",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata from Candyshack",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata from Candyshack').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy_foreach_candyshackfile_able-to_sqldb",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_candyshack_file_with_parameter",
+											"type": "DatasetReference",
+											"parameters": {
+												"filename": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_candyshack_sql_table_with_paramater",
+											"type": "DatasetReference",
+											"parameters": {
+												"tablename": {
+													"value": "@concat('Sales_',replace(item().name,'.csv',''))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_copy_sqltables_to_adls')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup_for_sqltables",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select *\nfrom sqldb2project001.information_schema.tables\nwhere table_schema='salesLT' and Table_Type='Base Table'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ds_SalesLT_Schema",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach_sqltable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_for_sqltables",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_for_sqltables').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy_slaesLT Tables_to_adls",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings",
+												"copyBehavior": "FlattenHierarchy"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_salesLT_Schema_parameter",
+											"type": "DatasetReference",
+											"parameters": {
+												"TableName": {
+													"value": "@item().Table_Name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_SalesLT_csv_parameter",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@concat('salesLT_',item().Table_Name,'.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_copycsvtojsonusing functions')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -837,6 +1096,149 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/df_employeerecords')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "SCD Tyoe2",
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dsemployeeinfo",
+								"type": "DatasetReference"
+							},
+							"name": "sourceadlscsv"
+						},
+						{
+							"dataset": {
+								"referenceName": "dssqldb",
+								"type": "DatasetReference"
+							},
+							"name": "sqldb"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dssqldb",
+								"type": "DatasetReference"
+							},
+							"name": "sinktosqldb"
+						},
+						{
+							"dataset": {
+								"referenceName": "dssqldb",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "lookupemployeerecords"
+						},
+						{
+							"name": "derivedIsCurrentColumn"
+						},
+						{
+							"name": "filterempisisnotnull"
+						},
+						{
+							"name": "derivedIsCurrentColumn1"
+						},
+						{
+							"name": "alterRowempid"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          EmpId as integer,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          Dept as string,",
+						"          Location as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> sourceadlscsv",
+						"source(output(",
+						"          EmpKey as integer,",
+						"          EmpId as integer,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          Dept as string,",
+						"          Location as string,",
+						"          IsCurrent as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> sqldb",
+						"sqldb select(mapColumn(",
+						"          db_EmpKey = EmpKey,",
+						"          db_EmpId = EmpId,",
+						"          db_FirstName = FirstName,",
+						"          db_LastName = LastName,",
+						"          db_Dept = Dept,",
+						"          db_Location = Location,",
+						"          db_IsCurrent = IsCurrent",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"sourceadlscsv, select1 lookup(EmpId == db_EmpId,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> lookupemployeerecords",
+						"sourceadlscsv derive(IsCurrent = 1) ~> derivedIsCurrentColumn",
+						"lookupemployeerecords filter(!isNull(db_EmpId)) ~> filterempisisnotnull",
+						"filterempisisnotnull derive(IsCurrent = 0) ~> derivedIsCurrentColumn1",
+						"derivedIsCurrentColumn1 alterRow(updateIf(IsCurrent==0)) ~> alterRowempid",
+						"derivedIsCurrentColumn sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          EmpId,",
+						"          FirstName,",
+						"          LastName,",
+						"          Dept,",
+						"          Location,",
+						"          IsCurrent",
+						"     )) ~> sinktosqldb",
+						"alterRowempid sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:false,",
+						"     updateable:true,",
+						"     upsertable:false,",
+						"     keys:['db_EmpKey'],",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 2,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          db_EmpKey,",
+						"          IsCurrent",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/df_scdtype1_studentinfo')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1315,312 +1717,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/MetadataDrivenCopyTask_hdl_TopLevel')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "This pipeline will count the total number of objects (tables etc.) required to be copied in this run, come up with the number of sequential batches based on the max allowed concurrent copy task, and then execute another pipeline to copy different batches sequentially.",
-				"activities": [
-					{
-						"name": "GetSumOfObjectsToCopy",
-						"description": "Count the total number of objects (tables etc.) required to be copied in this run.",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "SELECT count(*) as count FROM @{pipeline().parameters.MainControlTableName} where TopLevelPipelineName='@{pipeline().Pipeline}' and TriggerName like '%@{pipeline().TriggerName}%' and CopyEnabled = 1",
-									"type": "Expression"
-								},
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "MetadataDrivenCopyTask_hdl_ControlDS",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						}
-					},
-					{
-						"name": "CopyBatchesOfObjectsSequentially",
-						"description": "Come up with the number of sequential batches based on the max allowed concurrent copy tasks, and then execute another pipeline to copy different batches sequentially.",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "GetSumOfObjectsToCopy",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@range(0, add(div(activity('GetSumOfObjectsToCopy').output.firstRow.count,\n                    pipeline().parameters.MaxNumberOfConcurrentTasks),\n                    if(equals(mod(activity('GetSumOfObjectsToCopy').output.firstRow.count,\n                    pipeline().parameters.MaxNumberOfConcurrentTasks), 0), 0, 1)))",
-								"type": "Expression"
-							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "CopyObjectsInOneBatch",
-									"description": "Execute another pipeline to copy one batch of objects. The objects belonging to this batch will be copied parallelly.",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "MetadataDrivenCopyTask_hdl_MiddleLevel",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"MaxNumberOfObjectsReturnedFromLookupActivity": {
-												"value": "@pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity",
-												"type": "Expression"
-											},
-											"TopLevelPipelineName": {
-												"value": "@{pipeline().Pipeline}",
-												"type": "Expression"
-											},
-											"TriggerName": {
-												"value": "@{pipeline().TriggerName}",
-												"type": "Expression"
-											},
-											"CurrentSequentialNumberOfBatch": {
-												"value": "@item()",
-												"type": "Expression"
-											},
-											"SumOfObjectsToCopy": {
-												"value": "@activity('GetSumOfObjectsToCopy').output.firstRow.count",
-												"type": "Expression"
-											},
-											"SumOfObjectsToCopyForCurrentBatch": {
-												"value": "@min(pipeline().parameters.MaxNumberOfConcurrentTasks, activity('GetSumOfObjectsToCopy').output.firstRow.count)",
-												"type": "Expression"
-											},
-											"MainControlTableName": {
-												"value": "@pipeline().parameters.MainControlTableName",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"MaxNumberOfObjectsReturnedFromLookupActivity": {
-						"type": "Int",
-						"defaultValue": 5000
-					},
-					"MaxNumberOfConcurrentTasks": {
-						"type": "Int",
-						"defaultValue": 20
-					},
-					"MainControlTableName": {
-						"type": "String",
-						"defaultValue": "engrao.MainControlTable_hdl"
-					}
-				},
-				"folder": {
-					"name": "MetadataDrivenCopyTask_hdl_20250723"
-				},
-				"annotations": [
-					"MetadataDrivenSolution"
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/MetadataDrivenCopyTask_hdl_MiddleLevel')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl-ingest_transform_sales_to_gold')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "copydesserts4allfilestoparquet",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"wildcardFileName": "*.csv",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings",
-									"copyBehavior": "MergeFiles"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
-							},
-							"enableStaging": false,
-							"logSettings": {
-								"enableCopyActivityLog": true,
-								"copyActivityLogSettings": {
-									"logLevel": "Warning",
-									"enableReliableLogging": false
-								},
-								"logLocationSettings": {
-									"linkedServiceName": {
-										"referenceName": "ls_prj9",
-										"type": "LinkedServiceReference"
-									},
-									"path": "landing"
-								}
-							},
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_dessert4allcsv",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_bronzeparquet",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "pl_transform_sales_to_silver",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "copydesserts4allfilestoparquet",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_transform_sales_to_silver",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "pl_transformsilvertogold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "pl_transform_sales_to_silver",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_transformsilvertogold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_transform_sales_to_silver')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_transformsilvertogold')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Trigger_hdl')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "MetadataDrivenCopyTask_hdl_TopLevel",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2025-07-20T20:39:00Z",
-					"endTime": "2025-07-24T20:39:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/MetadataDrivenCopyTask_hdl_TopLevel')]"
-			]
 		}
 	]
 }
