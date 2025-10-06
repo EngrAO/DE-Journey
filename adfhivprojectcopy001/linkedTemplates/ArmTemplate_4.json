@@ -6,14 +6,6 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "adfhivprojectcopy001"
-		},
-		"Trigger_7ah_properties_pipeline_parameters_windowStart": {
-			"type": "string",
-			"defaultValue": "@trigger().outputs.windowStartTime"
-		},
-		"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
-			"type": "string",
-			"defaultValue": "@trigger().outputs.windowEndTime"
 		}
 	},
 	"variables": {
@@ -1200,6 +1192,15 @@
 						"derivedIsCurrentColumn1 alterRow(updateIf(IsCurrent==0)) ~> alterRowempid",
 						"derivedIsCurrentColumn sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     input(",
+						"          EmpKey as integer,",
+						"          EmpId as integer,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          Dept as string,",
+						"          Location as string,",
+						"          IsCurrent as integer",
+						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
@@ -1219,18 +1220,27 @@
 						"     )) ~> sinktosqldb",
 						"alterRowempid sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     input(",
+						"          EmpKey as integer,",
+						"          EmpId as integer,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          Dept as string,",
+						"          Location as string,",
+						"          IsCurrent as integer",
+						"     ),",
 						"     deletable:false,",
 						"     insertable:false,",
 						"     updateable:true,",
 						"     upsertable:false,",
-						"     keys:['db_EmpKey'],",
+						"     keys:['EmpKey'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     saveOrder: 2,",
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
-						"          db_EmpKey,",
+						"          EmpKey = db_EmpKey,",
 						"          IsCurrent",
 						"     )) ~> sink1"
 					]
@@ -1489,6 +1499,54 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_employeerecords')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "df_employeerecords",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_employeerecords",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceadlscsv": {},
+									"sqldb": {},
+									"sinktosqldb": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_employeerecords')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_jollygoodfilexlstosqldb')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1678,45 +1736,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/df_silver_to_gold')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Trigger_7ah')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "CopyPipeline_7ah",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"windowStart": {
-							"type": "Expression",
-							"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowStart')]"
-						},
-						"windowEnd": {
-							"type": "Expression",
-							"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowEnd')]"
-						}
-					}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2025-07-19T22:12:00Z",
-					"endTime": "2025-07-23T22:12:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": []
 		}
 	]
 }

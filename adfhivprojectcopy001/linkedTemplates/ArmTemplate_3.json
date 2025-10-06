@@ -250,7 +250,39 @@
 				},
 				"annotations": [],
 				"type": "AzureSqlTable",
-				"schema": [],
+				"schema": [
+					{
+						"name": "EmpKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EmpId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					},
+					{
+						"name": "Dept",
+						"type": "varchar"
+					},
+					{
+						"name": "Location",
+						"type": "varchar"
+					},
+					{
+						"name": "IsCurrent",
+						"type": "int",
+						"precision": 10
+					}
+				],
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "employeerecords"

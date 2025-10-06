@@ -347,12 +347,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"Trigger_7ah_properties_pipeline_parameters_windowStart": {
-						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowStart')]"
-					},
-					"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
-						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowEnd')]"
 					}
 				}
 			},
@@ -373,6 +367,12 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Trigger_7ah_properties_pipeline_parameters_windowStart": {
+						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowStart')]"
+					},
+					"Trigger_7ah_properties_pipeline_parameters_windowEnd": {
+						"value": "[parameters('Trigger_7ah_properties_pipeline_parameters_windowEnd')]"
 					},
 					"tr_storage_events_properties_typeProperties_scope": {
 						"value": "[parameters('tr_storage_events_properties_typeProperties_scope')]"

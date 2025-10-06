@@ -2854,6 +2854,54 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_employeerecords')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "df_employeerecords",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_employeerecords",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceadlscsv": {},
+									"sqldb": {},
+									"sinktosqldb": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_employeerecords')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_jollygoodfilexlstosqldb')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -5014,7 +5062,39 @@
 				},
 				"annotations": [],
 				"type": "AzureSqlTable",
-				"schema": [],
+				"schema": [
+					{
+						"name": "EmpKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EmpId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					},
+					{
+						"name": "Dept",
+						"type": "varchar"
+					},
+					{
+						"name": "Location",
+						"type": "varchar"
+					},
+					{
+						"name": "IsCurrent",
+						"type": "int",
+						"precision": 10
+					}
+				],
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "employeerecords"
@@ -5745,6 +5825,15 @@
 						"derivedIsCurrentColumn1 alterRow(updateIf(IsCurrent==0)) ~> alterRowempid",
 						"derivedIsCurrentColumn sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     input(",
+						"          EmpKey as integer,",
+						"          EmpId as integer,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          Dept as string,",
+						"          Location as string,",
+						"          IsCurrent as integer",
+						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
@@ -5764,18 +5853,27 @@
 						"     )) ~> sinktosqldb",
 						"alterRowempid sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     input(",
+						"          EmpKey as integer,",
+						"          EmpId as integer,",
+						"          FirstName as string,",
+						"          LastName as string,",
+						"          Dept as string,",
+						"          Location as string,",
+						"          IsCurrent as integer",
+						"     ),",
 						"     deletable:false,",
 						"     insertable:false,",
 						"     updateable:true,",
 						"     upsertable:false,",
-						"     keys:['db_EmpKey'],",
+						"     keys:['EmpKey'],",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     saveOrder: 2,",
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
-						"          db_EmpKey,",
+						"          EmpKey = db_EmpKey,",
 						"          IsCurrent",
 						"     )) ~> sink1"
 					]
