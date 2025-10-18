@@ -190,6 +190,28 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_adlsjson')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls02project001",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "CapproParameters.json",
+						"fileSystem": "staging"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_azuresqldb1')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -627,33 +649,6 @@
 					"compressionCodec": "snappy"
 				},
 				"schema": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_salesLT_Schema_parameter')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_sqldb",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"TableName": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "SalesLT",
-					"table": {
-						"value": "@dataset().TableName",
-						"type": "Expression"
-					}
-				}
 			},
 			"dependsOn": []
 		}

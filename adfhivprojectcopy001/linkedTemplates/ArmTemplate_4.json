@@ -13,6 +13,132 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_copyJSON')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_JSON_to_sqltable",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "Azure-Data-Factory-by-Example-Second-Edition-main/SampleData/SugarCube",
+									"wildcardFileName": "*.json",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "truncate table dbo.sales_load",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "$['Month']"
+										},
+										"sink": {
+											"name": "SalesMonth",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Company']"
+										},
+										"sink": {
+											"name": "Retailer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Sales'][0]['Product']"
+										},
+										"sink": {
+											"name": "Product",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Sales'][0]['ManufacturerProductCode']"
+										},
+										"sink": {
+											"name": "ManufacturerProductCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Sales'][0]['Units']"
+										},
+										"sink": {
+											"name": "UnitsSold",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "$['Sales'][0]['Value']"
+										},
+										"sink": {
+											"name": "SalesValueUSD",
+											"type": "Decimal"
+										}
+									}
+								],
+								"collectionReference": "$['Sales']",
+								"mapComplexValuesToString": false
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_sqldb",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-07-01T22:10:03Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_copy_from_adls_to_sql')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -672,6 +798,51 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2025-06-18T21:36:01Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_gittoadlsjson')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "lookupparafiles",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_adlsjson",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
 			},
 			"dependsOn": []
 		},
@@ -1637,104 +1808,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/df_scdtype1_studentinfo')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_transform_sales_to_silver')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "df_sales_silver",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_bronze_to_silver",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"dessert4allbronze": {},
-									"sinksilverparquet": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_bronze_to_silver')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_transformsilvertogold')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "df_silver_to_gold",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "df_silver_to_gold",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"sourcesilverdessert4all": {},
-									"sinksalesGold": {}
-								}
-							},
-							"staging": {
-								"linkedService": {
-									"referenceName": "ls_prj9",
-									"type": "LinkedServiceReference"
-								},
-								"folderPath": "gold"
-							},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/df_silver_to_gold')]"
 			]
 		}
 	]
