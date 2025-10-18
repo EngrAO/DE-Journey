@@ -1,0 +1,19 @@
+{
+	"name": "ds_adlsjson",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls02project001",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "CapproParameters.json",
+				"fileSystem": "staging"
+			}
+		},
+		"schema": {}
+	}
+}
